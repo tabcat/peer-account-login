@@ -1,0 +1,29 @@
+{
+  "name": "@tabcat/peer-account-login",
+  "version": "0.0.1",
+  "description": "user login and instance manager for peer-account",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha --exit"
+  },
+  "standard": {
+    "env": "mocha"
+  },
+  "keywords": [
+    "peer-account",
+    "orbit-db",
+    "ipfs"
+  ],
+  "author": "andersb@tuta.io",
+  "license": "MIT",
+  "dependencies": {
+    "@tabcat/ipfs-bundle-t": "0.0.6",
+    "@tabcat/peer-account-crypto": "0.0.3",
+    "orbit-db": "^0.22.0",
+    "orbit-db-identity-provider": "^0.2.0"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.1",
+    "rimraf": "^3.0.0"
+  }
+}
