@@ -5,8 +5,8 @@ const OrbitDB = require('orbit-db')
 const Identities = require('orbit-db-identity-provider')
 
 class OrbitDbLogin extends IpfsLogin {
-  constructor () {
-    super()
+  constructor (IpfsBundle) {
+    super(IpfsBundle)
     this._orbits = {}
   }
 

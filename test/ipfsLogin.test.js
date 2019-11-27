@@ -4,6 +4,7 @@ const assert = require('assert')
 const rmrf = require('rimraf')
 const config = require('./utils/config')
 const IpfsLogin = require('../src/ipfsLogin')
+const IpfsBundle = require('@tabcat/ipfs-bundle-t')
 
 describe('IpfsLogin', function () {
   this.timeout(config.timeout)
@@ -16,7 +17,7 @@ describe('IpfsLogin', function () {
   })
 
   beforeEach(async () => {
-    ipfsLogin = new IpfsLogin()
+    ipfsLogin = new IpfsLogin(IpfsBundle)
   })
 
   afterEach(async () => {
@@ -42,7 +43,7 @@ describe('IpfsLogin', function () {
   it('logs out an ipfs instance', async () => {
     node = await ipfsLogin.loginIpfs(repo)
     await ipfsLogin.logoutIpfs(repo)
-    ipfsLogin = new IpfsLogin()
+    ipfsLogin = new IpfsLogin(IpfsBundle)
     await ipfsLogin.loginIpfs(repo)
   })
 })

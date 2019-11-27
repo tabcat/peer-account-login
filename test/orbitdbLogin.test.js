@@ -4,6 +4,7 @@ const assert = require('assert')
 const rmrf = require('rimraf')
 const config = require('./utils/config')
 const OrbitdbLogin = require('../src/orbitdbLogin')
+const IpfsBundle = require('@tabcat/ipfs-bundle-t')
 
 describe('OrbitDbLogin', function () {
   this.timeout(config.timeout)
@@ -17,7 +18,7 @@ describe('OrbitDbLogin', function () {
   })
 
   beforeEach(async () => {
-    orbitdbLogin = new OrbitdbLogin()
+    orbitdbLogin = new OrbitdbLogin(IpfsBundle)
   })
 
   afterEach(async () => {
@@ -43,7 +44,7 @@ describe('OrbitDbLogin', function () {
   it('logs out an orbitdb instance', async () => {
     orbit = await orbitdbLogin.loginOrbitDb(repo)
     await orbitdbLogin.logoutOrbitDb(repo)
-    orbitdbLogin = new OrbitdbLogin()
+    orbitdbLogin = new OrbitdbLogin(IpfsBundle)
     await orbitdbLogin.loginOrbitDb(repo)
   })
 })

@@ -1,9 +1,9 @@
 
 'use strict'
-const Ipfs = require('@tabcat/ipfs-bundle-t')
 
 class IpfsLogin {
-  constructor () {
+  constructor (IpfsBundle) {
+    this._IpfsBundle = IpfsBundle
     this._nodes = {}
   }
 
@@ -14,7 +14,7 @@ class IpfsLogin {
     }
     const repo = `./ipfs/${id}`
     if (this._nodes[id]) return this._nodes[id]
-    const node = Ipfs({ repo, ...options })
+    const node = this._IpfsBundle({ repo, ...options })
     this._nodes = { ...this._nodes, [id]: node }
     return new Promise((resolve, reject) => {
       node.once('ready', () => resolve(node))

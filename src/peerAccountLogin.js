@@ -2,6 +2,7 @@
 'use strict'
 const OrbitDbLogin = require('./orbitdbLogin')
 const PeerAccount = require('../../peer-account')
+// const PeerAccount = require('@tabcat/peer-account')
 const EventEmitter = require('events').EventEmitter
 const crypto = require('@tabcat/peer-account-crypto')
 
@@ -28,8 +29,8 @@ const setStatus = (self, sc, codes = status) => {
 }
 
 class PeerAccountLogin extends OrbitDbLogin {
-  constructor (options) {
-    super()
+  constructor (IpfsBundle, options) {
+    super(IpfsBundle)
     this._local = null
     this._loginStore = null
     this._options = options
@@ -61,8 +62,8 @@ class PeerAccountLogin extends OrbitDbLogin {
   }
 
   // create the login instance
-  static async create (options) {
-    const instance = new PeerAccountLogin(options)
+  static async create (IpfsBundle, options) {
+    const instance = new PeerAccountLogin(IpfsBundle, options)
     return new Promise((resolve, reject) => {
       instance.events.on('READY', () => resolve(instance))
       instance.events.on('FAILED', reject)
@@ -90,7 +91,7 @@ class PeerAccountLogin extends OrbitDbLogin {
     const _id = `${userPrefix}${crypto.randomBytes(config.saltLen).join('.')}`
     const salt = crypto.randomBytes(config.saltLen)
     const userOrbit = await this.loginOrbitDb(_id)
-    const { address, rawKey } =
+    const { dbAddr, rawKey } =
       await PeerAccount.genAccountIndex(userOrbit)
     const aesKey = await crypto.aes.deriveKey(
       Buffer.from(pw),
@@ -105,14 +106,14 @@ class PeerAccountLogin extends OrbitDbLogin {
     const userRecord = {
       _id,
       name: username,
-      address: address.toString(),
+      address: dbAddr.toString(),
       salt: [...salt],
       cipherbytes: [...cipherbytes],
       iv: [...iv]
     }
     await this._loginStore.put(userRecord)
     const user = await this.localUser(username)
-    if (!user) throw new Error(`user ${_id} does not exist`)
+    if (!user) throw new Error(`failed to create user ${_id}`)
     this.events.emit('newUser', _id)
     return user
   }
