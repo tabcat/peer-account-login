@@ -44,16 +44,9 @@ describe('PeerAccountLogin', function () {
     rmrf.sync('./ipfs')
     rmrf.sync('./orbitdb')
     pal = await PeerAccountLogin.create(IpfsBundle)
-    let i = 0
-    while (pal._loginStore.query(() => true).length < 3) {
-      if (i > 10) {
-        throw new Error('failed to setup pre existing users for tests')
-      }
-      await Promise.all(
-        Object.values(users).map(u => pal._loginStore.put(u))
-      )
-      i++
-    }
+    await Object.values(users).reduce(async (a, c) => [
+      ...await a, await pal._loginStore.put(c)
+    ], Promise.resolve([]))
   })
 
   after(async () => {
@@ -67,6 +60,7 @@ describe('PeerAccountLogin', function () {
 
   it('logs in a new user', async () => {
     account = await pal.loginUser(username, password)
+    await account.initialized
     const localUser = await pal.localUser(username)
     assert.strictEqual(Object.values(pal.accounts).length, 1)
     assert.strictEqual(Object.values(pal.accounts)[0], account)
@@ -81,13 +75,13 @@ describe('PeerAccountLogin', function () {
   it('logs out a user', async () => {
     await pal.logoutUser(username)
     assert.strictEqual(Object.values(pal.accounts).length, 0)
-    assert.strictEqual(Object.values(pal.accounts)[0], undefined)
     assert.strictEqual(Object.values(pal._orbits).length, 1)
     assert.strictEqual(Object.values(pal._nodes).length, 1)
   })
 
   it('logs in an existing user', async () => {
     account = await pal.loginUser(username, password)
+    await account.initialized
     const localUser = await pal.localUser(username)
     assert.strictEqual(Object.values(pal.accounts).length, 1)
     assert.strictEqual(Object.values(pal.accounts)[0], account)
@@ -133,6 +127,7 @@ describe('PeerAccountLogin', function () {
 
   it('fails to log in an existing user with incorrect password', async () => {
     account = await pal.loginUser(username, password)
+    await account.initialized
     assert.strictEqual(Object.values(pal.accounts).length, 1)
     assert.strictEqual(Object.values(pal.accounts)[0], account)
     await assert.rejects(pal.loginUser(username, 'passwerd'))
