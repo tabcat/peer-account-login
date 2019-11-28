@@ -1,8 +1,7 @@
 
 'use strict'
 const OrbitDbLogin = require('./orbitdbLogin')
-const PeerAccount = require('../../peer-account')
-// const PeerAccount = require('@tabcat/peer-account')
+const PeerAccount = require('@tabcat/peer-account')
 const EventEmitter = require('events').EventEmitter
 const crypto = require('@tabcat/peer-account-crypto')
 
