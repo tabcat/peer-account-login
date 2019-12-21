@@ -1,6 +1,6 @@
 {
   "name": "@tabcat/peer-account-login",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "user login and instance manager for peer-account",
   "main": "src/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "@tabcat/peer-account-crypto": "0.0.3",
-    "orbit-db": "^0.22.0",
+    "orbit-db": "^0.23.0",
     "orbit-db-identity-provider": "^0.2.0"
   },
   "devDependencies": {
