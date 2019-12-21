@@ -36,10 +36,10 @@ class PeerAccountLogin extends OrbitDbLogin {
     this.accounts = {}
     this.events = new EventEmitter()
     setStatus(this, status.PRE_INIT)
-    this.initialized = this.initialize()
+    this.initialized = this._initialize()
   }
 
-  async initialize () {
+  async _initialize () {
     try {
       setStatus(this, status.INIT)
       this._local = await this.loginOrbitDb('local-id', this._options)
@@ -81,7 +81,7 @@ class PeerAccountLogin extends OrbitDbLogin {
 
   // create account index and local user record
   // aes key for account index is encrypted and put into the local user record
-  async newUser (username, pw = '') {
+  async _newUser (username, pw = '') {
     if (typeof username !== 'string' && typeof pw !== 'string') {
       throw new Error('username and pw must be of type string')
     }
@@ -125,7 +125,7 @@ class PeerAccountLogin extends OrbitDbLogin {
     }
     const user = await this.localUser(username)
       ? await this.localUser(username)
-      : await this.newUser(username, pw)
+      : await this._newUser(username, pw)
     const { _id, address } = user
     const [salt, cipherbytes, iv] = [user.salt, user.cipherbytes, user.iv]
       .map(a => Buffer.from(a))
@@ -135,16 +135,25 @@ class PeerAccountLogin extends OrbitDbLogin {
         salt,
         config.keyLen
       )
-      // decrypt encrypted raw indexKey
+      // decrypt raw accountIndex key
       const rawKey = Buffer.from(JSON.parse(
         crypto.util.ab2str(await aesKey.decrypt(cipherbytes, iv))
       ))
-      if (this.accounts[_id]) return this.accounts[_id]
-      const userOrbit = await this.loginOrbitDb(_id)
-      const peerAccount = await PeerAccount.login(userOrbit, address, rawKey)
-      this.accounts = { ...this.accounts, [_id]: peerAccount }
-      this.events.emit('loginUser', peerAccount)
-      return peerAccount
+      if (this.accounts[_id]) {
+        if (await this.accounts[_id].keyCheck(address, rawKey)) {
+          return this.accounts[_id]
+        } else {
+          throw new Error(
+            'failed to login to existing instance: keyCheck fail'
+          )
+        }
+      } else {
+        const userOrbit = await this.loginOrbitDb(_id)
+        const peerAccount = await PeerAccount.login(userOrbit, address, rawKey)
+        this.accounts = { ...this.accounts, [_id]: peerAccount }
+        this.events.emit('loginUser', peerAccount)
+        return peerAccount
+      }
     } catch (e) {
       console.error(e)
       throw new Error(`failed to login user: ${username}, id: ${_id}`)
@@ -164,7 +173,7 @@ class PeerAccountLogin extends OrbitDbLogin {
     this.accounts = this._logout(user._id, this.accounts)
   }
 
-  async logoutAllUser () {
+  async logoutAllUsers () {
     const active = Object.keys(this.accounts)
     const users = this._loginStore.query(doc => active.includes(doc._id))
     await Promise.all(
