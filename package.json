@@ -1,6 +1,6 @@
 {
   "name": "@tabcat/peer-account-login",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "user login and instance manager for peer-account",
   "main": "src/index.js",
   "scripts": {
