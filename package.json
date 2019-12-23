@@ -17,7 +17,7 @@
   "author": "andersb@tuta.io",
   "license": "MIT",
   "dependencies": {
-    "@tabcat/peer-account": "0.0.2",
+    "@tabcat/peer-account": "0.0.3",
     "@tabcat/peer-account-crypto": "0.0.3",
     "orbit-db": "^0.23.0",
     "orbit-db-identity-provider": "^0.2.0"
