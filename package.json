@@ -2,6 +2,10 @@
   "name": "@tabcat/peer-account-login",
   "version": "0.0.6",
   "description": "user login and instance manager for peer-account",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tabcat/peer-account-login.git"
+	},
   "main": "src/index.js",
   "scripts": {
     "test": "mocha --exit"
@@ -17,13 +21,12 @@
   "author": "andersb@tuta.io",
   "license": "MIT",
   "dependencies": {
-    "@tabcat/peer-account": "0.0.4",
-    "@tabcat/peer-account-crypto": "0.0.3",
-    "orbit-db": "^0.23.0",
-    "orbit-db-identity-provider": "^0.2.0"
+    "@tabcat/peer-account-crypto": "0.0.3"
   },
   "devDependencies": {
     "@tabcat/ipfs-bundle-t": "0.0.6",
+    "orbit-db": "^0.23.0",
+    "@tabcat/peer-account": "0.1.0",
     "mocha": "^6.2.1",
     "rimraf": "^3.0.0"
   }

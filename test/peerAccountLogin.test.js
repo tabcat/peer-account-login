@@ -5,6 +5,8 @@ const rmrf = require('rimraf')
 const config = require('./utils/config')
 const PeerAccountLogin = require('../src/peerAccountLogin')
 const IpfsBundle = require('@tabcat/ipfs-bundle-t')
+const OrbitDB = require('orbit-db')
+const PeerAccount = require('@tabcat/peer-account')
 
 describe('PeerAccountLogin', function () {
   this.timeout(config.timeout)
@@ -43,7 +45,7 @@ describe('PeerAccountLogin', function () {
   before(async () => {
     rmrf.sync('./ipfs')
     rmrf.sync('./orbitdb')
-    pal = await PeerAccountLogin.create(IpfsBundle)
+    pal = await PeerAccountLogin.create(IpfsBundle, OrbitDB, PeerAccount)
     await Object.values(users).reduce(async (a, c) => [
       ...await a, await pal._loginStore.put(c)
     ], Promise.resolve([]))

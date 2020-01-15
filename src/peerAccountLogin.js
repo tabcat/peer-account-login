@@ -1,7 +1,6 @@
 
 'use strict'
 const OrbitDbLogin = require('./orbitdbLogin')
-const PeerAccount = require('@tabcat/peer-account')
 const EventEmitter = require('events').EventEmitter
 const crypto = require('@tabcat/peer-account-crypto')
 
@@ -28,8 +27,9 @@ const setStatus = (self, sc, codes = status) => {
 }
 
 class PeerAccountLogin extends OrbitDbLogin {
-  constructor (IpfsBundle, options) {
-    super(IpfsBundle)
+  constructor (IpfsBundle, OrbitDB, PeerAccount, options) {
+    super(IpfsBundle, OrbitDB)
+    this._PeerAccount = PeerAccount
     this._local = null
     this._loginStore = null
     this._options = options
@@ -57,16 +57,16 @@ class PeerAccountLogin extends OrbitDbLogin {
     } catch (e) {
       setStatus(this, status.FAILED)
       console.error(e)
+      throw new Error('peer-account-login failed initialization')
     }
   }
 
   // create the login instance
-  static async create (IpfsBundle, options) {
-    const instance = new PeerAccountLogin(IpfsBundle, options)
-    return new Promise((resolve, reject) => {
-      instance.events.on('READY', () => resolve(instance))
-      instance.events.on('FAILED', reject)
-    })
+  static async create (IpfsBundle, OrbitDB, PeerAccount, options) {
+    const instance =
+      new PeerAccountLogin(IpfsBundle, OrbitDB, PeerAccount, options)
+    await instance.initialized
+    return instance
   }
 
   async localUser (username) {
@@ -91,7 +91,7 @@ class PeerAccountLogin extends OrbitDbLogin {
     const salt = crypto.randomBytes(config.saltLen)
     const userOrbit = await this.loginOrbitDb(_id)
     const { dbAddr, rawKey } =
-      await PeerAccount.genAccountIndex(userOrbit)
+      await this._PeerAccount.genAccountIndex(userOrbit)
     const aesKey = await crypto.aes.deriveKey(
       Buffer.from(pw),
       salt,
@@ -119,7 +119,7 @@ class PeerAccountLogin extends OrbitDbLogin {
 
   // return PeerAccount instance from username and pw
   // decrypts encrypted aes key for decrypting account index
-  async loginUser (username, pw = '') {
+  async loginUser (username, pw = '', options = {}) {
     if (typeof username !== 'string' && typeof pw !== 'string') {
       throw new Error('username and pw must be of type string')
     }
@@ -148,8 +148,9 @@ class PeerAccountLogin extends OrbitDbLogin {
           )
         }
       } else {
-        const userOrbit = await this.loginOrbitDb(_id)
-        const peerAccount = await PeerAccount.login(userOrbit, address, rawKey)
+        const userOrbit = await this.loginOrbitDb(_id, options)
+        const peerAccount =
+          await this._PeerAccount.login(userOrbit, address, rawKey, options)
         this.accounts = { ...this.accounts, [_id]: peerAccount }
         this.events.emit('loginUser', peerAccount)
         return peerAccount

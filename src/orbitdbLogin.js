@@ -1,12 +1,11 @@
 
 'use strict'
 const IpfsLogin = require('./ipfsLogin')
-const OrbitDB = require('orbit-db')
-const Identities = require('orbit-db-identity-provider')
 
 class OrbitDbLogin extends IpfsLogin {
-  constructor (IpfsBundle) {
+  constructor (IpfsBundle, OrbitDB) {
     super(IpfsBundle)
+    this._OrbitDB = OrbitDB
     this._orbits = {}
   }
 
@@ -17,16 +16,10 @@ class OrbitDbLogin extends IpfsLogin {
     }
     const repo = `./orbitdb/${id}`
     if (this._orbits[id]) return this._orbits[id]
-    const [ipfs, identity] = await Promise.all([
-      this.loginIpfs(id, options.ipfs),
-      Identities.createIdentity({
-        id,
-        identityKeysPath: `${repo}/idKeys`
-      })
-    ])
-    const orbit = await OrbitDB.createInstance(
+    const ipfs = await this.loginIpfs(id, options)
+    const orbit = await this._OrbitDB.createInstance(
       ipfs,
-      { directory: repo, identity, ...options }
+      { directory: repo, ...options }
     )
     this._orbits = { ...this._orbits, [id]: orbit }
     return orbit
