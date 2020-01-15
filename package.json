@@ -1,6 +1,6 @@
 {
   "name": "@tabcat/peer-account-login",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "user login and instance manager for peer-account",
 	"repository": {
 		"type": "git",
