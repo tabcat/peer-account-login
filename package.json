@@ -2,10 +2,10 @@
   "name": "@tabcat/peer-account-login",
   "version": "0.1.0",
   "description": "user login and instance manager for peer-account",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/tabcat/peer-account-login.git"
-	},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tabcat/peer-account-login.git"
+  },
   "main": "src/index.js",
   "scripts": {
     "test": "mocha --exit"
